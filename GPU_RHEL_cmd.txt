@@ -1,0 +1,225 @@
+GPU Configuration commands (RHEL 6.8) (In user account)
+
+Steps:
+
+1. Download Anaconda with Python2.7  86_64
+$ wget http://repo.continuum.io/archive/Anaconda2-4.0.0-Linux-x86_64.sh
+
+$ chmod +x Anaconda2-4.0.0-Linux-x86_64.sh
+
+Install Anaconda Python (Prepend path to .bashrc)
+$ ./Anaconda2-4.0.0-Linux-x86_64.sh
+
+
+2. To check the NVIDIA GPU drivers
+$ nvidia-smi		# To display the GPU usage
+$ watch -n 0.1 nvidia-smi		# To give a real-time GPU usage info with 0.1 sec refresh rate
+
+
+3. (Doesn't work for RHEL) Install Anaconda OpenCV3 (Have to compile from source)
+(ImportError: /lib/x86_64-linux-gnu/libc.so.6: version 'GLIBC_2.14' not found when import cv2 )
+$ conda install -c menpo opencv3=3.1.0
+
+--> To compile the package from source as given at https://github.com/menpo/conda-opencv3
+$ conda install conda-build
+$ git clone https://github.com/menpo/conda-opencv3
+$ cd conda-opencv3
+$ conda config --add channels menpo
+$ conda build conda/	# Need to install dos2unix package and convert build.sh file by dos2unix build.sh
+$ conda install /PATH/TO/OPENCV3/PACKAGE.tar.gz
+
+
+
+##############################################
+
+Working with VirtualEnv
+
+See available Python versions by
+$ conda search "^python$"
+
+$ conda update conda     # updates any outdated packages in anaconda
+
+$ conda info -e			# see the list of existing virtual envs
+
+1. Create a new virtual Environment with Python3.5.0
+$ conda create -n caffeEnvPy3 python=3.5.0 anaconda		# caffeEnvPy3 is the name of the virtual env
+
+2. Activate the virtual env
+$ source activate caffeEnvPy3
+
+3. Install new packages to the virtual environment
+$ conda install -n caffeEnvPy3 [package]
+
+Eg. $ conda install -n caffeEnvPy3 -c menpo opencv3=3.1.0
+$ conda install -n caffeEnvPy3 --channel https://conda.anaconda.org/menpo opencv3
+---> search for a package
+$ anaconda search -t conda opencv3
+
+---> list all the packages in the environment
+$ conda list -n caffeEnvPy3 
+
+4. DeActivate a virtual environment
+To end a session in the current environment, enter the following. There is no need to specify the envname - which ever is currently active will be deactivated, and the PATH and shell variables will be returned to normal
+$ source deactivate
+
+5. Delete a no longer needed virtual env
+$ conda remove -n caffeEnvPy3 -all
+
+
+##############################################
+
+
+
+Installing Theano and Opencv2.4.11 for Windows (With Anaconda):
+Steps:
+1. Download Anaconda for windows and install in user account only.
+2. Open Anaconda Command Prompt
+3. Execute the following commands:
+> conda update conda
+
+> conda update --all		# update all the libraries
+
+> conda install mingw libpython		# 
+
+# > conda install theano		# Throws an Error
+
+> pip install theano		# installs the older version of theano
+
+
+> conda install -c menpo opencv=2.4.11
+
+## Upgrade Theano by pulling repository from GIT
+> conda install git		# Install git
+> pip install --upgrade --no-deps git+https://github.com/Theano/Theano.git
+
+> spyder 	# for graphical user interface
+
+
+
+#####################################################
+
+Installing cuda-7.5 Toolkit in RHEL
+
+rpm -i cuda-7.5*.rpm     ///// check the package name online
+
+sudo yum clean all
+
+sudo yum install cuda
+
+#####################################################
+
+Installing Caffe supporting libraries inside Anaconda
+( Refer http://caffe.berkeleyvision.org/install_yum.html  for libraries) 
+
+$ conda install -c anaconda boost=1.60.0
+
+$ conda install -c anaconda protobuf=2.6.1
+
+//////  $ conda install -c bnoon leveldb=1.15			// will also install snappy   // does not work
+$ conda install -c conda-forge python-leveldb=0.193
+
+$ conda install -c anaconda hdf5=1.8.16
+
+$ conda install -c dougal lmdb=0.84
+
+$ conda install -c anaconda python-gflags=2.0
+
+conda install -c anaconda openblas=0.2.14
+
+
+#########################################################
+
+--> Download cuDNN library from following link for CUDA-7.5 
+https://developer.nvidia.com/cudnn
+
+http://developer.download.nvidia.com/compute/machine-learning/cudnn/secure/v5.1/rc/7.5/cudnn-7.5-linux-x64-v5.1-rc.tgz?autho=1468834051_9983dff940fee34e6467e8702b633cd9&file=cudnn-7.5-linux-x64-v5.1-rc.tgz
+
+--> extract the files
+--> It contains two folders
+		-- include
+		-- lib64
+--> Copy the files of these folders respectively to /usr/local/cuda-7.5/include and /usr/local/cuda-7.5/lib64
+
+#########################################################
+
+## THIS SECTION IS NOT REQUIRED
+Install GLIBC-2.14 separately 
+
+$ wget http://ftp.gnu.org/gnu/glibc/glibc-2.14.tar.gz
+
+$ tar -zxvf glibc-2.14.tar.gz
+$ cd glibc-2.14
+$ mkdir build
+$ cd build
+$ ../configure --prefix=/home/arpan/ProgramFiles/glibc-2.14/
+$ make -j4
+# sudo make install
+
+#########################################################
+
+Installing opencv from menpo conda will result in ImportError: GLIBC:2.14 or greater required
+To solve we need to build opencv from source by following the instructions given at following link:
+http://dhaneshr.net/2016/06/03/installing-opencv-2-4-x-with-ffmpeg-python-on-anaconda/
+
+#########################################################
+
+Try for OpenCV 3
+
+conda install -c anaconda pkgconfig=1.1.0
+
+conda install -c https://conda.anaconda.org/jeanconn/label/gtk gtk_plus=2.18.3
+
+############################################################
+
+USE_CUDNN = 1
+
+BLAS = open			# change atlas to open for OpenBLAS 
+
+# comment PYTHON_INCLUDE lines and uncomment ANACONDA_HOME and PYTHON_INCLUDE
+ANACONDA_HOME = $(HOME)/anaconda2
+PYTHON_INCLUDE = $(ANACONDA_HOME)/include  ....
+					.....
+					.....
+
+PYTHON_LIB = $(ANACONDA_HOME)/lib
+
+#########################################################
+
+Installing python package in the user directory
+
+python -m pip install --install-option="--prefix=/home/arpan/ProgramFiles/site-packages" textmining
+  OR
+pip install --target=d:\somewhere\other\than\the\default package_name
+and 
+add d:\somewhere\other\than\the\default to PYTHONPATH
+
+##########################################################
+
+Virtual ENV
+
+Create a Virtual Env (with global packages access)
+-Create a folder venv and execute
+
+$ virtualenv venv --system-site-packages			// virtualenv venv   ## will create a new VENV without any packages
+
+To install the packages even if the package exists globally,
+venv/bin/pip install -I <package-name>
+
+
+##########################################################
+
+Install Torch 
+
+http://torch.ch/docs/getting-started.html
+
+For RHEL, do not execute the install-deps.sh file.
+Only install 
+$ yum install readline-devel		# provided the previous configuration of CUDA, Python and Caffe are already done
+
+$ ./install.sh
+
+
+For installing new Lua Packages
+
+$ luarocks install image
+$ luarocks list
